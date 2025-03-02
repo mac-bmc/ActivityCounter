@@ -10,6 +10,7 @@ import android.os.Build
 import android.os.IBinder
 import androidx.core.app.NotificationCompat
 import com.example.activitycounter.R
+import com.example.activitycounter.data.CounterRepository
 import com.example.activitycounter.reciever.CounterReciever
 
 
@@ -18,6 +19,7 @@ class TapCounterService : Service() {
 
     private val channelId = "activity_tracking_channel"
     private val notificationId = 1
+    private val counterRepository = CounterRepository.getInstance()
 
     companion object {
         const val ACTION_TAP = "com.example.activitycounter.ACTION_TAP"
@@ -27,7 +29,10 @@ class TapCounterService : Service() {
     override fun onCreate() {
         super.onCreate()
         createNotificationChannel()
-        startForeground(notificationId, createNotification())
+        startForeground(notificationId, createNotification(""))
+        counterRepository.activityStatus.observeForever {
+            updateNotification(it.toString())
+        }
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
@@ -37,13 +42,14 @@ class TapCounterService : Service() {
         }
         return START_STICKY
     }
-    private fun updateNotification() {
-        val notification = createNotification()
+
+    private fun updateNotification(status: String) {
+        val notification = createNotification(status)
         val notificationManager = getSystemService(NotificationManager::class.java)
         notificationManager.notify(notificationId, notification)
     }
 
-    private fun createNotification(): Notification {
+    private fun createNotification(status: String): Notification {
         val tapIntent = Intent(this, CounterReciever::class.java).apply {
             action = ACTION_TAP
         }
@@ -56,6 +62,7 @@ class TapCounterService : Service() {
 
         return NotificationCompat.Builder(this, channelId)
             .setContentTitle("Activity Counter")
+            .setContentText("Status: $status")
             .setSmallIcon(R.drawable.ic_launcher_foreground)
             .setPriority(NotificationCompat.PRIORITY_LOW)
             .addAction(R.drawable.ic_click, "Tap", tapPendingIntent)
