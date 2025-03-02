@@ -12,6 +12,8 @@ import androidx.core.app.NotificationCompat
 import com.example.activitycounter.R
 import com.example.activitycounter.data.CounterRepository
 import com.example.activitycounter.reciever.CounterReciever
+import androidx.lifecycle.Observer
+import com.example.activitycounter.domain.ActivityStatus
 
 
 class TapCounterService : Service() {
@@ -20,6 +22,10 @@ class TapCounterService : Service() {
     private val channelId = "activity_tracking_channel"
     private val notificationId = 1
     private val counterRepository = CounterRepository.getInstance()
+    private lateinit var notificationManager: NotificationManager
+    private val activityObserver = Observer<ActivityStatus> { status ->
+        updateNotification(status.toString())
+    }
 
     companion object {
         const val ACTION_TAP = "com.example.activitycounter.ACTION_TAP"
@@ -28,24 +34,21 @@ class TapCounterService : Service() {
 
     override fun onCreate() {
         super.onCreate()
+        notificationManager = getSystemService(NotificationManager::class.java)
         createNotificationChannel()
         startForeground(notificationId, createNotification(""))
-        counterRepository.activityStatus.observeForever {
-            updateNotification(it.toString())
-        }
+        counterRepository.activityStatus.observeForever(activityObserver)
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         if (intent?.action == ACTION_TAP) {
             sendBroadcast(Intent(ACTION_TAP))
-            //updateNotification()
         }
         return START_STICKY
     }
 
     private fun updateNotification(status: String) {
         val notification = createNotification(status)
-        val notificationManager = getSystemService(NotificationManager::class.java)
         notificationManager.notify(notificationId, notification)
     }
 
@@ -75,9 +78,15 @@ class TapCounterService : Service() {
             val channel = NotificationChannel(
                 channelId, "Activity Counter", NotificationManager.IMPORTANCE_LOW
             )
-            getSystemService(NotificationManager::class.java)?.createNotificationChannel(channel)
+            notificationManager.createNotificationChannel(channel)
         }
     }
 
     override fun onBind(intent: Intent?): IBinder? = null
+
+    override fun onDestroy() {
+        notificationManager.cancel(notificationId)
+        counterRepository.activityStatus.removeObserver(activityObserver)
+        super.onDestroy()
+    }
 }
