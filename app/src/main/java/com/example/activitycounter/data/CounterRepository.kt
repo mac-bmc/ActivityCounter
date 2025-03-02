@@ -1,15 +1,15 @@
-package com.example.activitycounter
+package com.example.activitycounter.data
 
-import android.app.Application
 import android.util.Log
-import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import com.example.activitycounter.domain.ActivityStatus
 import java.util.concurrent.Executors
 import java.util.concurrent.ScheduledExecutorService
 import java.util.concurrent.TimeUnit
 
-class CounterViewModel(application: Application) : AndroidViewModel(application) {
+class CounterRepository private constructor() {
+
     private val _tapCount = MutableLiveData(0)
     val tapCount: LiveData<Int> = _tapCount
 
@@ -19,9 +19,19 @@ class CounterViewModel(application: Application) : AndroidViewModel(application)
     private val _isTracking = MutableLiveData(false)
     val isTracking: LiveData<Boolean> = _isTracking
 
-    private val _countList = mutableListOf<Long>()//a list for storing the count in 5s
-    private var executor: ScheduledExecutorService? =
-        null //an executor on the background thread to check for activity status every 1s
+    private val _countList = mutableListOf<Long>() // Stores taps in 5s
+    private var executor: ScheduledExecutorService? = null // Background task executor
+
+    companion object {
+        @Volatile
+        private var INSTANCE: CounterRepository? = null
+
+        fun getInstance(): CounterRepository {
+            return INSTANCE ?: synchronized(this) {
+                INSTANCE ?: CounterRepository().also { INSTANCE = it }
+            }
+        }
+    }
 
     fun updateTracking() {
         Log.d("executor", "update tracking")
@@ -31,7 +41,6 @@ class CounterViewModel(application: Application) : AndroidViewModel(application)
             stopExecutorService()
         } else {
             startExecutorService()
-            _activityStatus.value = ActivityStatus.Active
         }
     }
 
@@ -44,13 +53,12 @@ class CounterViewModel(application: Application) : AndroidViewModel(application)
         val now = System.currentTimeMillis()
         _tapCount.value = (_tapCount.value ?: 0) + 1
         _countList.add(now)
-
+        _countList.removeAll { now - it > 5000 } // Remove old taps (outside 5s)
     }
 
     private fun startExecutorService() {
         if (executor == null || executor!!.isShutdown || executor!!.isTerminated) {
-            executor =
-                Executors.newSingleThreadScheduledExecutor() // Reinitialize executor if it's shut down
+            executor = Executors.newSingleThreadScheduledExecutor()
         }
 
         executor!!.scheduleWithFixedDelay({
@@ -63,25 +71,13 @@ class CounterViewModel(application: Application) : AndroidViewModel(application)
         executor = null
     }
 
-
     private fun updateActivityStatus() {
         try {
             val now = System.currentTimeMillis()
-            _countList.removeAll { now - it > 5000 } //removing elements not in the 5s gap
-            if (_countList.size >= 5) {//checking for time condition and changing status
-                _activityStatus.postValue(ActivityStatus.Active)
-            } else {
-                _activityStatus.postValue(ActivityStatus.Idle)
-            }
+            _countList.removeAll { now - it > 5000 } // Remove old taps (outside 5s)
+            _activityStatus.postValue(if (_countList.size >= 5) ActivityStatus.Active else ActivityStatus.Idle)
         } catch (e: Exception) {
             Log.d("executorError", e.message.toString())
         }
     }
-
-    override fun onCleared() {
-        super.onCleared()
-        executor?.shutdown()
-    }
-
-
 }
