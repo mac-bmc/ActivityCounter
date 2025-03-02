@@ -22,8 +22,10 @@ import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import com.example.activitycounter.R
 import com.example.activitycounter.domain.ActivityStatus
 
 @ExperimentalMaterial3Api
@@ -32,10 +34,11 @@ fun ActivityCounterScreen(viewModel: CounterViewModel) {
     val tapCount = viewModel.tapCount.observeAsState(0)
     val activityStatus = viewModel.activityStatus.observeAsState(ActivityStatus.Idle)
     val isTracking = viewModel.isTracking.observeAsState(false)
+    val context = LocalContext.current
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Activity Counter") },
+                title = { Text(context.getString(R.string.app_name)) },
             )
         },
     ) { paddingValues ->
@@ -67,7 +70,7 @@ fun ActivityCounterScreen(viewModel: CounterViewModel) {
             ) {
 
                 Text(
-                    text = "Tap Count: ${tapCount.value}",
+                    text = "${context.getString(R.string.tap_count)}: ${tapCount.value}",
                     style = MaterialTheme.typography.bodyLarge,
                     fontWeight = FontWeight.Bold,
                     color = Color.Black
@@ -91,7 +94,11 @@ fun ActivityCounterScreen(viewModel: CounterViewModel) {
                         contentColor = Color.White
                     )
                 ) {
-                    Text(text = if (isTracking.value) "Stop" else "Start")
+                    Text(
+                        text = if (isTracking.value) context.getString(R.string.stop) else context.getString(
+                            R.string.start
+                        )
+                    )
                 }
             }
         }

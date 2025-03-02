@@ -1,3 +1,10 @@
 <resources>
     <string name="app_name">Activity Counter</string>
+    <string name="notification_granted">Notification permission granted</string>
+    <string name="notification_denied">Notification permission denied</string>
+    <string name="tap">Tap Me</string>
+    <string name="tap_count">Tap count</string>
+    <string name="start">Start</string>
+    <string name="stop">Stop</string>
+    <string name="status">Status</string>
 </resources>

@@ -61,8 +61,8 @@ class TapCounterService : Service() {
         )
 
         return NotificationCompat.Builder(this, channelId)
-            .setContentTitle("Activity Counter")
-            .setContentText("Status: $status")
+            .setContentTitle(getString(R.string.tap_count))
+            .setContentText("${getString(R.string.status)}: $status")
             .setSmallIcon(R.drawable.ic_launcher_foreground)
             .setPriority(NotificationCompat.PRIORITY_LOW)
             .addAction(R.drawable.ic_click, "Tap", tapPendingIntent)

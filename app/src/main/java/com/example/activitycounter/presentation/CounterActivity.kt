@@ -14,6 +14,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModelProvider
+import com.example.activitycounter.R
 import com.example.activitycounter.service.TapCounterService
 import com.example.activitycounter.ui.theme.ActivityCounterTheme
 
@@ -24,9 +25,11 @@ class CounterActivity : ComponentActivity() {
     private val notificationPermission =
         registerForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
             if (isGranted) {
-                Toast.makeText(this, "Notification permission granted", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, getString(R.string.notification_granted), Toast.LENGTH_SHORT)
+                    .show()
             } else {
-                Toast.makeText(this, "Notification permission denied!", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, getString(R.string.notification_denied), Toast.LENGTH_SHORT)
+                    .show()
             }
         }
 
@@ -66,7 +69,7 @@ class CounterActivity : ComponentActivity() {
                 }
             }
         } else {
-            Toast.makeText(this, "Notification permission not granted", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, getString(R.string.notification_denied), Toast.LENGTH_SHORT).show()
         }
         super.onStop()
     }
