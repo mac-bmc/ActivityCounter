@@ -33,8 +33,13 @@ class CounterRepository private constructor() {
         }
     }
 
+    fun updateCurrentValues(tapCount: Int, isTracking: Boolean, status: String) {
+        _tapCount.value = tapCount
+        _isTracking.value = isTracking
+        _activityStatus.value = ActivityStatus.valueOf(status)
+    }
+
     fun updateTracking() {
-        Log.d("executor", "update tracking")
         _isTracking.value = _isTracking.value?.not() ?: false
         if (!_isTracking.value!!) {
             resetCounter()
@@ -70,6 +75,7 @@ class CounterRepository private constructor() {
         executor?.shutdown()
         executor = null
     }
+
 
     private fun updateActivityStatus() {
         try {
