@@ -89,9 +89,11 @@ class CounterActivity : ComponentActivity() {
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
-        outState.putInt("tap_count", counterViewModel.tapCount.value ?: 0)
-        outState.putBoolean("is_tracking", counterViewModel.isTracking.value ?: false)
-        outState.putString("activity_status", counterViewModel.activityStatus.value.toString())
+        if (counterViewModel.isTracking.value == true) {//persist data only if activity is tracking is going on
+            outState.putInt("tap_count", counterViewModel.tapCount.value ?: 0)
+            outState.putBoolean("is_tracking", counterViewModel.isTracking.value ?: false)
+            outState.putString("activity_status", counterViewModel.activityStatus.value.toString())
+        }
         super.onSaveInstanceState(outState)
     }
 }
