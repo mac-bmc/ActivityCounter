@@ -9,11 +9,11 @@ import android.content.Intent
 import android.os.Build
 import android.os.IBinder
 import androidx.core.app.NotificationCompat
+import androidx.lifecycle.Observer
 import com.example.activitycounter.R
 import com.example.activitycounter.data.CounterRepository
-import com.example.activitycounter.reciever.CounterReciever
-import androidx.lifecycle.Observer
 import com.example.activitycounter.domain.ActivityStatus
+import com.example.activitycounter.reciever.CounterReciever
 
 
 class TapCounterService : Service() {
@@ -21,7 +21,7 @@ class TapCounterService : Service() {
 
     private val channelId = "activity_tracking_channel"
     private val notificationId = 1
-    private val counterRepository = CounterRepository.getInstance()
+    private lateinit var counterRepository: CounterRepository
     private lateinit var notificationManager: NotificationManager
     private val activityObserver = Observer<ActivityStatus> { status ->
         updateNotification(status.toString())
@@ -35,6 +35,7 @@ class TapCounterService : Service() {
     override fun onCreate() {
         super.onCreate()
         notificationManager = getSystemService(NotificationManager::class.java)
+        counterRepository = CounterRepository.getInstance(applicationContext)
         createNotificationChannel()
         startForeground(notificationId, createNotification(""))
         counterRepository.activityStatus.observeForever(activityObserver)
@@ -57,10 +58,7 @@ class TapCounterService : Service() {
             action = ACTION_TAP
         }
         val tapPendingIntent = PendingIntent.getBroadcast(
-            this,
-            0,
-            tapIntent,
-            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+            this, 0, tapIntent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
 
         return NotificationCompat.Builder(this, channelId)
@@ -68,9 +66,7 @@ class TapCounterService : Service() {
             .setContentText("${getString(R.string.status)}: $status")
             .setSmallIcon(R.drawable.ic_launcher_foreground)
             .setPriority(NotificationCompat.PRIORITY_LOW)
-            .addAction(R.drawable.ic_click, "Tap", tapPendingIntent)
-            .setOngoing(true)
-            .build()
+            .addAction(R.drawable.ic_click, "Tap", tapPendingIntent).setOngoing(true).build()
     }
 
     private fun createNotificationChannel() {

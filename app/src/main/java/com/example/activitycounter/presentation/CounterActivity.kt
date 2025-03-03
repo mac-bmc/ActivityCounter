@@ -39,13 +39,7 @@ class CounterActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         counterViewModel = ViewModelProvider(this)[CounterViewModel::class.java]
         notificationPermission.launch(Manifest.permission.POST_NOTIFICATIONS)
-        if (savedInstanceState != null) {
-            counterViewModel.updateCurrentValues(
-                tapCount = savedInstanceState.getInt("tap_count"),
-                status = savedInstanceState.getString("activity_status") ?: "",
-                isTracking = savedInstanceState.getBoolean("is_tracking")
-            )
-        }
+
         enableEdgeToEdge()
         setContent {
             ActivityCounterTheme {
@@ -88,12 +82,5 @@ class CounterActivity : ComponentActivity() {
         super.onDestroy()
     }
 
-    override fun onSaveInstanceState(outState: Bundle) {
-        if (counterViewModel.isTracking.value == true) {//persist data only if activity is tracking is going on
-            outState.putInt("tap_count", counterViewModel.tapCount.value ?: 0)
-            outState.putBoolean("is_tracking", counterViewModel.isTracking.value ?: false)
-            outState.putString("activity_status", counterViewModel.activityStatus.value.toString())
-        }
-        super.onSaveInstanceState(outState)
-    }
+
 }

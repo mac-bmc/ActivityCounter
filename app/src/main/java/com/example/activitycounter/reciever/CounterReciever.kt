@@ -10,7 +10,7 @@ class CounterReciever : BroadcastReceiver() {
 
     override fun onReceive(context: Context, intent: Intent) {
         if (intent.action == TapCounterService.ACTION_TAP) {
-            val counterRepository = CounterRepository.getInstance()
+            val counterRepository = CounterRepository.getInstance(context)
             counterRepository.incrementCounter()
         }
     }
