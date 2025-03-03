@@ -11,7 +11,6 @@ ActivityCounterApp is an Android application designed to track user tap with a s
 
 ## Installation
 1. Clone the repository:
-    git clone [https://github.com/your-repo/ActivityCounterApp.git](https://github.com/mac-bmc/ActivityCounter)
 2. Open the project in Android Studio.
 3. Build the project and run it on an Android device or emulator.
 
