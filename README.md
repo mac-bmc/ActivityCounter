@@ -36,8 +36,8 @@ ActivityCounterApp is an Android application designed to track user tap with a s
     - `CounterReceiver`: Handles broadcast actions from foreground service
 
 ## Implementation
--Implemented the UI with jetpack compose
--Used livedata for state management
--Started a foreground service when the application moves to background for continuing user tracking and stopped the service when application becomes active again.
--Used shared preference to locally persist the state in case of an unexpected app restart.
--Used a broadcast receiver to listen to taps while the application is in background and updated the state.
+- Implemented the UI with jetpack compose
+- Used livedata for state management
+- Started a foreground service when the application moves to background for continuing user tracking and stopped the service when application becomes active again.
+- Used shared preference to locally persist the state in case of an unexpected app restart.
+- Used a broadcast receiver to listen to taps while the application is in background and updated the state.
