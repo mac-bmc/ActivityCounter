@@ -57,6 +57,7 @@ class CounterRepository private constructor(context: Context) {
     private fun resetCounter() {
         _tapCount.value = 0
         _activityStatus.value = ActivityStatus.Idle
+        _countList.clear()
         saveToSharedPreferences()
     }
 
