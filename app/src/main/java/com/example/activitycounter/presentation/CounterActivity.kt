@@ -38,7 +38,13 @@ class CounterActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         counterViewModel = ViewModelProvider(this)[CounterViewModel::class.java]
-        notificationPermission.launch(Manifest.permission.POST_NOTIFICATIONS)
+
+        if (ContextCompat.checkSelfPermission(
+                this, Manifest.permission.POST_NOTIFICATIONS
+            ) == PackageManager.PERMISSION_DENIED
+        ) {
+            notificationPermission.launch(Manifest.permission.POST_NOTIFICATIONS)
+        }
 
         enableEdgeToEdge()
         setContent {
